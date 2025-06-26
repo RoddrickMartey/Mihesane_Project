@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  title      String?
+  boi        String?
+  firstname  String
+  surname    String
+  othername  String?
+  username   String   @unique
+  email      String   @unique
+  password   String
+  avatar     String?
+  avatarId   String?
+  createdAt  DateTime @default(now())
+
+  post         Post[]
+  comments     Comment[]
+  postLikes    PostLike[]
+  commentLikes CommentLike[]
+
+  following Follow[] @relation("FollowingUser")
+  followers Follow[] @relation("FollowedUser")
+
+  blocks    Block[] @relation("Blocker")
+  blockedBy Block[] @relation("Blocked")
+}
+
+model Post {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  slug       String     @unique
+  image      String?    // secure_url
+  imageId    String?    // public_id
+  authorId   String     @db.ObjectId
+  author     User       @relation(fields: [authorId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  tags       String[]
+  category   Category
+  sections   Json
+  likes      PostLike[]
+  comments   Comment[]
+}
+
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  authorId  String   @db.ObjectId
+  author    User     @relation(fields: [authorId], references: [id])
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+
+  likes CommentLike[]
+}
+
+model PostLike {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  postId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model CommentLike {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  commentId String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Follow {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  followerId  String   @db.ObjectId
+  followingId String   @db.ObjectId
+  follower    User     @relation("FollowingUser", fields: [followerId], references: [id])
+  following   User     @relation("FollowedUser", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Block {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  blockerId String   @db.ObjectId
+  blockedId String   @db.ObjectId
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id])
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum Category {
+  Technology
+  Health
+  Education
+  Travel
+  Food
+  Business
+  Lifestyle
+  Entertainment
+  Science
+  Sports
+}
