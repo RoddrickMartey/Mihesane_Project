@@ -47,7 +47,7 @@ app.get("/", (req, res) => {
             margin: 0;
             padding: 0;
             font-family: system-ui, sans-serif;
-            background: #f9fafb;
+            background: #10b981;
             color: #111827;
             display: flex;
             align-items: center;
