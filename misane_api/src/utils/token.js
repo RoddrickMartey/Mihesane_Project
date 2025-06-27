@@ -12,7 +12,7 @@ export function generateToken(userId, expiresIn = "7d") {
     throw new Error("Missing JWT_SECRET in environment variables.");
   }
 
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn });
 }
 
 /**

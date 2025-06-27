@@ -8,6 +8,7 @@ import rateLimit from "express-rate-limit";
 
 //Routes
 import authRouter from "./src/routers/auth.route.js";
+import userRouter from "./src/routers/user.route.js";
 
 dotenv.config();
 
@@ -83,6 +84,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 // 404 handler
 app.use((req, res) => {

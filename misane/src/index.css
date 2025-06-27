@@ -1,1 +1,113 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&family=IBM+Plex+Mono&display=swap");
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* === Light Theme === */
+  --color-primary: #f45c7a; /* Rose Coral */
+  --color-secondary: #a3a380; /* Muted Olive */
+  --color-accent: #ffe5b4; /* Cream Peach */
+
+  --color-background: #faf9f6; /* Warm off-white */
+  --color-surface: #ffffff; /* Base surface */
+  --color-border: #dcd8c0; /* Light sand border */
+
+  --color-text-primary: #1f1f1f; /* Strong text */
+  --color-text-soft: #5c5c5c; /* Muted secondary text */
+
+  --font-heading: "DM Serif Display", serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+@layer theme {
+  * {
+    @variant dark {
+      /* === Dark Theme === */
+      --color-primary: #fb7185; /* Soft rose (brighter for contrast) */
+      --color-secondary: #b9c29c; /* Pale olive */
+      --color-accent: #ffd89d; /* Light peach */
+
+      --color-background: #1c1b1f; /* Deep charcoal */
+      --color-surface: #2a2a2f; /* Slightly lighter card surface */
+      --color-border: #3a3a3f; /* Subtle border */
+
+      --color-text-primary: #f3f3f3; /* Light text */
+      --color-text-soft: #aaaaaa; /* Softer muted text */
+    }
+  }
+}
+body {
+  @apply bg-background text-text-primary font-body antialiased transition-colors duration-300;
+}
+
+h1 {
+  @apply text-4xl font-heading font-semibold text-text-primary;
+}
+
+h2 {
+  @apply text-3xl font-heading font-semibold text-text-primary;
+}
+
+h3 {
+  @apply text-2xl font-heading font-semibold text-text-primary;
+}
+
+h4 {
+  @apply text-xl font-heading font-semibold text-text-primary;
+}
+
+h5 {
+  @apply text-lg font-heading font-medium text-text-primary;
+}
+
+h6 {
+  @apply text-base font-heading font-medium text-text-primary;
+}
+
+input {
+  @apply border-2 border-secondary focus:outline-none focus:ring-2 focus:ring-primary;
+}
+textarea {
+  @apply border-2 border-secondary;
+}
+
+.container {
+  @apply mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl;
+}
+
+.skeleton {
+  @apply bg-zinc-200 dark:bg-zinc-700 relative overflow-hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  border-style: solid;
+  border-radius: 9999px;
+  animation: spin 0.75s linear infinite;
+}
