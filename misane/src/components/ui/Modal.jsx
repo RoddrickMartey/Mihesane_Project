@@ -23,10 +23,10 @@ export default function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div
         className={clsx(
-          "bg-surface text-text-primary max-w-lg w-full mx-4 rounded-2xl shadow-lg relative p-6",
+          "bg-surface text-text-primary max-w-lg w-full mx-4 shadow-lg relative p-6",
           className
         )}
       >
@@ -42,7 +42,7 @@ export default function Modal({
 
         {title && <h2 className="text-xl font-heading mb-4">{title}</h2>}
 
-        <div className="mb-4">{children}</div>
+        <div className="mb-2">{children}</div>
 
         {footer && <div className="mt-4">{footer}</div>}
       </div>

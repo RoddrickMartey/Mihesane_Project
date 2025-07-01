@@ -13,6 +13,7 @@ export default function Input({
   disabled = false,
   className,
   helperText,
+  required = false,
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
@@ -28,6 +29,7 @@ export default function Input({
           className="block text-sm font-medium text-text-soft mb-1"
         >
           {label}
+          {required && <span className="text-red-600 ml-0.5">*</span>}
         </label>
       )}
 
@@ -40,8 +42,8 @@ export default function Input({
           onChange={onChange}
           placeholder={placeholder}
           disabled={disabled || loading}
+          required={required}
           className={clsx(
-            "w-full px-4 py-2 pr-11 rounded-xl border-2 border-color-border bg-surface text-text-primary font-body placeholder:text-text-soft  transition",
             (disabled || loading) && "opacity-50 cursor-not-allowed"
           )}
         />

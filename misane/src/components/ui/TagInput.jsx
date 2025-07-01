@@ -45,7 +45,7 @@ export default function TagInput({
           {value.map((tag, i) => (
             <span
               key={i}
-              className="flex items-center gap-1 bg-primary text-white text-sm px-2 py-1 rounded-full"
+              className="flex items-center gap-1 bg-primary text-white text-sm px-2 py-1"
             >
               #{tag}
               {!disabled && (
@@ -72,7 +72,6 @@ export default function TagInput({
             placeholder={placeholder}
             disabled={disabled || loading}
             className={clsx(
-              "w-full px-4 py-2 rounded-xl border border-color-border bg-surface text-text-primary placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-primary transition",
               (disabled || loading) && "opacity-50 cursor-not-allowed"
             )}
           />

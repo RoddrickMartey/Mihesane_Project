@@ -35,7 +35,6 @@ export default function Textarea({
           rows={rows}
           disabled={disabled || loading}
           className={clsx(
-            "w-full px-4 py-2 pr-11 rounded-xl border-2 border-border bg-surface text-text-primary font-body placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-primary transition resize-none",
             (disabled || loading) && "opacity-50 cursor-not-allowed"
           )}
         />

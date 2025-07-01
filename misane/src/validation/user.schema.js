@@ -29,10 +29,15 @@ export const createUserSchema = Joi.object({
     "string.max": "Username must not exceed 30 characters.",
     "any.required": "Username is required.",
   }),
-  email: Joi.string().email().required().messages({
-    "string.email": "Please provide a valid email address.",
-    "any.required": "Email is required.",
-  }),
+  email: Joi.string()
+    .email({ tlds: { allow: ["com", "net", "org", "edu", "dev"] } })
+    .required()
+    .messages({
+      "string.email":
+        "Please provide a valid email address with a recognized domain (e.g. .com, .net).",
+      "any.required": "Email is required.",
+    }),
+
   password: Joi.string().min(6).max(100).required().messages({
     "string.min": "Password must be at least 6 characters.",
     "string.max": "Password must not exceed 100 characters.",
@@ -51,7 +56,6 @@ export const updateUserDetailsSchema = Joi.object({
   boi: Joi.string().max(500).optional().allow("").messages({
     "string.max": "Bio must not exceed 500 characters.",
   }),
-
   firstname: Joi.string().min(2).max(50).optional().messages({
     "string.min": "First name must be at least 2 characters.",
     "string.max": "First name must not exceed 50 characters.",
@@ -68,9 +72,14 @@ export const updateUserDetailsSchema = Joi.object({
     "string.min": "Username must be at least 3 characters.",
     "string.max": "Username must not exceed 30 characters.",
   }),
-  email: Joi.string().email().optional().messages({
-    "string.email": "Please provide a valid email address.",
-  }),
+  email: Joi.string()
+    .email({ tlds: { allow: ["com", "net", "org", "edu", "dev"] } })
+    .required()
+    .messages({
+      "string.email":
+        "Please provide a valid email address with a recognized domain (e.g. .com, .net).",
+      "any.required": "Email is required.",
+    }),
 })
   .or("title", "boi", "firstname", "surname", "othername", "username", "email")
   .messages({

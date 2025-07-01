@@ -26,13 +26,13 @@ export default function Button({
   ...restProps // 👈 rename to avoid confusion
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-medium text-sm px-4 py-2 rounded-2xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none";
+    "inline-flex items-center justify-center gap-2 font-medium text-sm px-4 py-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none";
 
   const variants = {
     primary:
-      "bg-primary text-white hover:bg-pink-600 focus-visible:ring-primary",
+      "bg-primary text-white hover:brightness-90 focus-visible:ring-primary",
     secondary:
-      "bg-secondary text-white hover:bg-olive-700 focus-visible:ring-secondary",
+      "bg-secondary text-white hover:brightness-90 focus-visible:ring-secondary",
     outline:
       "border border-border text-text-primary hover:bg-surface focus-visible:ring-border",
     warning:

@@ -4,9 +4,9 @@ import clsx from "clsx";
 
 const variants = {
   default: "bg-surface text-text-primary border-border",
-  success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  warning: "bg-amber-50 text-amber-700 border-amber-200",
-  danger: "bg-rose-50 text-rose-700 border-rose-200",
+  success: "bg-secondary/10 text-secondary border-secondary/30",
+  warning: "bg-accent/20 text-primary border-accent",
+  danger: "bg-red-100 text-red-800 border-red-200",
 };
 
 const icons = {
@@ -28,7 +28,7 @@ export default function InfoBox({
   return (
     <div
       className={clsx(
-        "border p-4 rounded-xl flex items-center gap-4 shadow-sm",
+        "border p-4 flex items-center gap-4 shadow-sm ",
         variants[variant],
         className
       )}

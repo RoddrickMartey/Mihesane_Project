@@ -13,7 +13,6 @@ import {
 } from "../utils/commonUtils.js";
 import { generateToken } from "../utils/token.js";
 import crypto from "crypto";
-import redis from "../lib/redis.js";
 import cloudinary from "../lib/cloudinary.js";
 
 /**
@@ -83,6 +82,8 @@ export const signup = async (req, res) => {
         surname: true,
         avatar: true,
         createdAt: true,
+        othername: true,
+        boi: true,
       },
     });
 
@@ -137,7 +138,7 @@ export const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "Invalid credentials." });
     }
 
     // 3. Compare password
@@ -167,6 +168,8 @@ export const login = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         createdAt: user.createdAt,
+        othername: user.othername,
+        boi: user.boi,
       });
   } catch (err) {
     console.error("Login Error:", err.message);
@@ -210,8 +213,14 @@ export const updateUserDetails = async (req, res) => {
     return res.status(400).json({ message: getFirstJoiErrorMessage(error) });
   }
 
-  // Check for username or email conflict if present
-  if (value.email) {
+  // Fetch current user
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, username: true },
+  });
+
+  // Check if new email is different before checking for conflict
+  if (value.email && value.email !== currentUser.email) {
     const emailTaken = await isFieldValueTaken(
       prisma,
       "user",
@@ -219,11 +228,13 @@ export const updateUserDetails = async (req, res) => {
       value.email,
       userId
     );
-    if (emailTaken)
+    if (emailTaken) {
       return res.status(409).json({ message: "Email is already in use." });
+    }
   }
 
-  if (value.username) {
+  // Check if new username is different before checking for conflict
+  if (value.username && value.username !== currentUser.username) {
     const usernameTaken = await isFieldValueTaken(
       prisma,
       "user",
@@ -231,8 +242,9 @@ export const updateUserDetails = async (req, res) => {
       value.username,
       userId
     );
-    if (usernameTaken)
+    if (usernameTaken) {
       return res.status(409).json({ message: "Username is already in use." });
+    }
   }
 
   const updated = await prisma.user.update({
@@ -247,6 +259,7 @@ export const updateUserDetails = async (req, res) => {
       title: true,
       boi: true,
       avatar: true,
+      othername: true,
     },
   });
 
@@ -316,6 +329,8 @@ export const updateUserAvatar = async (req, res) => {
         surname: true,
         avatar: true,
         createdAt: true,
+        othername: true,
+        boi: true,
       },
     });
 
@@ -329,7 +344,7 @@ export const updateUserAvatar = async (req, res) => {
 };
 
 /**
- * Generates a password reset token and stores it in Redis.
+ * Generates a password reset token and stores it in the database.
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
@@ -337,21 +352,35 @@ export const updateUserAvatar = async (req, res) => {
 export const generateResetToken = async (req, res) => {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Remove any existing reset token
+    await prisma.resetToken.deleteMany({ where: { userId } });
 
     // Generate a secure random token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Store in Redis with 15-min expiry
-    await redis.set(`reset:${userId}`, resetToken, { EX: 15 * 60 }); // 15 minutes
+    // Set token to expire in 15 minutes
+    const expDate = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Send it back (you can also return it in JSON if not using cookie)
+    // Save to database
+    await prisma.resetToken.create({
+      data: {
+        resetToken,
+        userId,
+        expDate,
+      },
+    });
+
+    // Set cookie
     res
       .cookie("reset_token", resetToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        maxAge: 15 * 60 * 1000,
+        maxAge: 15 * 60 * 1000, // 15 minutes
       })
       .status(200)
       .json({ message: "Reset token created successfully." });
@@ -362,7 +391,7 @@ export const generateResetToken = async (req, res) => {
 };
 
 /**
- * Resets user password using token stored in Redis.
+ * Resets user password using token stored in the database.
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
@@ -370,41 +399,54 @@ export const generateResetToken = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
     const resetTokenFromCookie = req.cookies?.reset_token;
+
     if (!resetTokenFromCookie) {
       return res.status(403).json({ message: "Reset token is missing." });
     }
 
-    // Validate new password
     const { value, error } = updateUserPasswordSchema.validate(req.body);
+
     if (error) {
       return res.status(400).json({ message: getFirstJoiErrorMessage(error) });
     }
 
-    // Compare token
-    const storedToken = await redis.get(`reset:${userId}`);
-    if (!storedToken || storedToken !== resetTokenFromCookie) {
-      return res
-        .status(403)
-        .json({ message: "Invalid or expired reset token." });
+    const storedToken = await prisma.resetToken.findFirst({
+      where: { userId },
+    });
+
+    const now = new Date();
+
+    if (!storedToken) {
+      return res.status(403).json({ message: "Reset token not found." });
     }
 
-    // Hash and update password
+    if (storedToken.resetToken !== resetTokenFromCookie) {
+      return res.status(403).json({ message: "Reset token does not match." });
+    }
+
+    if (storedToken.expDate < now) {
+      return res.status(403).json({ message: "Reset token has expired." });
+    }
+
     const hashedPassword = await hashPassword(value.password);
+
     await prisma.user.update({
       where: { id: userId },
       data: { password: hashedPassword },
     });
 
-    // Delete the token
-    await redis.del(`reset:${userId}`);
+    await prisma.resetToken.delete({ where: { userId } });
     res.clearCookie("reset_token");
 
     return res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
-    console.error("Password reset error:", err.message);
-    res.status(500).json({ message: "Internal server error." });
+    console.error("Password reset error:", err);
+    return res.status(500).json({ message: "Internal server error." });
   }
 };

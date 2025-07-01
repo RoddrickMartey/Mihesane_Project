@@ -12,7 +12,7 @@ const router = Router();
 router.use(verifyToken);
 
 router.post("/reset-token", generateResetToken);
-router.post("/reset-password", resetPassword);
+router.patch("/change-password", resetPassword);
 router.patch("/details", updateUserDetails);
 router.patch("/avatar", updateUserAvatar);
 

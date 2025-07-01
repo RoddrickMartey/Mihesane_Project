@@ -44,7 +44,7 @@ export default function CategorySelector({
         onClick={() => setOpen((prev) => !prev)}
         disabled={disabled}
         className={clsx(
-          "w-full flex items-center justify-between px-3 py-2 rounded-lg border bg-surface border-border text-text-primary placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-primary",
+          "border border-secondary focus:outline-none focus:border-2 focus:border-primary placeholder:text-text-soft w-full px-4 py-2 pr-11 bg-surface text-text-primary transition flex items-center justify-between",
           disabled && "opacity-50 cursor-not-allowed"
         )}
       >
@@ -53,29 +53,30 @@ export default function CategorySelector({
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-1 w-full bg-surface border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-10 mt-1 w-full bg-surface border border-border shadow-lg max-h-60 overflow-y-auto rounded-md">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search category..."
-            className="w-full px-3 py-2 border-b border-border text-sm text-text-primary placeholder:text-text-soft outline-none"
+            className="w-full px-3 py-2 text-sm text-text-primary bg-surface outline-none border-b border-border"
           />
 
           {filtered.length > 0 ? (
             filtered.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => {
                   onChange(cat);
                   setOpen(false);
                   setQuery("");
                 }}
                 className={clsx(
-                  "block w-full text-left px-3 py-2 text-sm",
+                  "block w-full text-left px-3 py-2 text-sm transition-colors",
                   cat === value
                     ? "bg-primary text-white"
-                    : "hover:bg-accent text-text-soft"
+                    : "hover:bg-accent text-text-soft hover:text-black"
                 )}
               >
                 {cat}

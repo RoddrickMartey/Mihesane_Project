@@ -31,12 +31,12 @@ export default function Alert({
   return (
     <div
       className={clsx(
-        "rounded-xl border p-4 flex items-start gap-3 text-sm",
+        " border px-3 py-2 flex items-start gap-3 text-sm",
         baseColors[type],
         className
       )}
     >
-      <div className="mt-0.5">
+      <div className="mt-1.5">
         <Icon size={20} />
       </div>
       <div className="flex-1">

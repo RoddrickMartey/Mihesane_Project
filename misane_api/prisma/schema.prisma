@@ -10,23 +10,23 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  title      String?
-  boi        String?
-  firstname  String
-  surname    String
-  othername  String?
-  username   String   @unique
-  email      String   @unique
-  password   String
-  avatar     String?
-  avatarId   String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  title     String?
+  boi       String?
+  firstname String
+  surname   String
+  othername String?
+  username  String   @unique
+  email     String   @unique
+  password  String
+  avatar    String?
+  avatarId  String?
+  createdAt DateTime @default(now())
 
   post         Post[]
   comments     Comment[]
@@ -38,32 +38,33 @@ model User {
 
   blocks    Block[] @relation("Blocker")
   blockedBy Block[] @relation("Blocked")
+
+  resetToken ResetToken?
 }
 
 model Post {
-  id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  title      String
-  slug       String     @unique
-  image      String?    // secure_url
-  imageId    String?    // public_id
-  authorId   String     @db.ObjectId
-  author     User       @relation(fields: [authorId], references: [id])
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  tags       String[]
-  category   Category
-  sections   Json
-  likes      PostLike[]
-  comments   Comment[]
+  id        String     @id @default(uuid())
+  title     String
+  slug      String     @unique
+  image     String?
+  imageId   String?
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  tags      String[]
+  category  Category
+  sections  Json
+  likes     PostLike[]
+  comments  Comment[]
 }
 
-
 model Comment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(uuid())
   content   String
-  authorId  String   @db.ObjectId
+  authorId  String
   author    User     @relation(fields: [authorId], references: [id])
-  postId    String   @db.ObjectId
+  postId    String
   post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
 
@@ -71,39 +72,47 @@ model Comment {
 }
 
 model PostLike {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  postId    String   @db.ObjectId
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
   user      User     @relation(fields: [userId], references: [id])
   post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
 }
 
 model CommentLike {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  commentId String   @db.ObjectId
+  id        String   @id @default(uuid())
+  userId    String
+  commentId String
   user      User     @relation(fields: [userId], references: [id])
   comment   Comment  @relation(fields: [commentId], references: [id])
   createdAt DateTime @default(now())
 }
 
 model Follow {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  followerId  String   @db.ObjectId
-  followingId String   @db.ObjectId
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
   follower    User     @relation("FollowingUser", fields: [followerId], references: [id])
   following   User     @relation("FollowedUser", fields: [followingId], references: [id])
   createdAt   DateTime @default(now())
 }
 
 model Block {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  blockerId String   @db.ObjectId
-  blockedId String   @db.ObjectId
+  id        String   @id @default(uuid())
+  blockerId String
+  blockedId String
   blocker   User     @relation("Blocker", fields: [blockerId], references: [id])
   blocked   User     @relation("Blocked", fields: [blockedId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model ResetToken {
+  id         String   @id @default(uuid())
+  resetToken String   @unique
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  expDate    DateTime
 }
 
 enum Category {
@@ -118,3 +127,4 @@ enum Category {
   Science
   Sports
 }
+
